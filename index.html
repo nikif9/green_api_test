@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREEN-API Interface</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        .response-container {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="idInstance">idInstance:</label>
+                    <input type="text" class="form-control" id="idInstance">
+                </div>
+                <div class="form-group">
+                    <label for="apiTokenInstance">ApiTokenInstance:</label>
+                    <input type="text" class="form-control" id="apiTokenInstance">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="getSettings()">getSettings</button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="getStateInstance()">getStateInstance</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="chatId1" placeholder="7777777777">
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" id="message" rows="4" placeholder="Hello World!"></textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="sendMessage()">sendMessage</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="chatId2" placeholder="7777777777">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="fileUrl" placeholder="https://my.site.com/img/horse.png">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" onclick="sendFileByUrl()">sendFileByUrl</button>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="response-container" id="response">
+                    Ответ:
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://1103.api.green-api.com';
+        
+        async function fetchApi(method, endpoint, body = null) {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            const url = `${apiUrl}/waInstance${idInstance}/${endpoint}/${apiTokenInstance}`;
+            
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                document.getElementById('response').innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('response').innerText = `Error: ${error.message}`;
+            }
+        }
+
+        function getSettings() {
+            fetchApi('GET', 'getSettings');
+        }
+
+        function getStateInstance() {
+            fetchApi('GET', 'getStateInstance');
+        }
+
+        function sendMessage() {
+            const chatId = document.getElementById('chatId1').value;
+            const message = document.getElementById('message').value;
+            const body = {
+                chatId,
+                message
+            };
+            fetchApi('POST', 'sendMessage', body);
+        }
+
+        function sendFileByUrl() {
+            const chatId = document.getElementById('chatId2').value;
+            const urlFile = document.getElementById('fileUrl').value;
+            const body = {
+                chatId,
+                urlFile,
+                fileName: urlFile.split('/').pop()
+            };
+            fetchApi('POST', 'sendFileByUrl', body);
+        }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
